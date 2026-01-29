@@ -1,0 +1,118 @@
+---
+# tasks file for ssh_hardening
+- name: Backup existing sshd_config
+  ansible.builtin.copy:
+    src: /etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config.bak
+    remote_src: true
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Change SSH daemon configuration
+  ansible.builtin.lineinfile:
+    line: "{{ item.line }}"
+    regexp: "{{ item.regexp }}"
+    path: /etc/ssh/sshd_config
+  loop:
+    - line: "PasswordAuthentication no"
+      regexp: "^(#)?PasswordAuthentication"
+    - line: "PermitRootLogin no"
+      regexp: "^(#)?PermitRootLogin"
+    - line: "PermitEmptyPasswords no"
+      regexp: "^(#)?PermitEmptyPasswords"
+    - line: "ChallengeResponseAuthentication no"
+      regexp: "^(#)?ChallengeResponseAuthentication"
+    - line: "HostbasedAuthentication no"
+      regexp: "^(#)?HostbasedAuthentication"
+    - line: "MaxAuthTries {{ ssh_hardening_max_auth_tries }}"
+      regexp: "^(#)?MaxAuthTries"
+    - line: "X11Forwarding no"
+      regexp: "^(#)?X11Forwarding"
+    - line: "ClientAliveInterval {{ ssh_hardening_client_alive_interval }}"
+      regexp: "^(#)?ClientAliveInterval"
+    - line: "ClientAliveCountMax {{ ssh_hardening_client_alive_count_max }}"
+      regexp: "^(#)?ClientAliveCountMax"
+    - line: "Protocol 2"
+      regexp: "^(#)?Protocol"
+    - line: "AllowUsers {{ ssh_hardening_allowed_users }}"
+      regexp: "^(#)?AllowUsers"
+  notify:
+    - Restart ssh service
+
+- name: Set secure HostKeyAlgorithms
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    insertafter: "^#RekeyLimit default none"
+    line: "HostKeyAlgorithms {{ ssh_hardening_host_key_algorithms }}"
+    state: present
+  notify:
+    - Restart ssh service
+
+- name: Set secure KexAlgorithms
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    insertafter: "^#RekeyLimit default none"
+    line: "KexAlgorithms {{ ssh_hardening_kex_algorithms }}"
+    state: present
+  notify:
+    - Restart ssh service
+
+- name: Set secure Ciphers
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    insertafter: "^#RekeyLimit default none"
+    line: "Ciphers {{ ssh_hardening_ciphers }}"
+    state: present
+  notify:
+    - Restart ssh service
+
+- name: Set secure MACs
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    insertafter: "^#RekeyLimit default none"
+    line: "MACs {{ ssh_hardening_macs }}"
+    state: present
+  notify:
+    - Restart ssh service
+
+- name: Ensure fail2ban is installed
+  when: ssh_hardening_enable_fail2ban
+  ansible.builtin.package:
+    name: fail2ban
+    state: present
+
+- name: Configure fail2ban for sshd
+  when: ssh_hardening_enable_fail2ban
+  ansible.builtin.template:
+    src: sshd.conf.j2
+    dest: /etc/fail2ban/jail.d/sshd.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - Restart fail2ban
+
+- name: Install dependencies
+  when: ssh_hardening_enable_tg_notifications
+  ansible.builtin.package:
+    name:
+      - curl
+      - tzdata
+      - jq
+    state: present
+
+- name: Upload notifications on login script
+  when: ssh_hardening_enable_tg_notifications
+  ansible.builtin.template:
+    src: pam-notify.sh.j2
+    dest: /usr/local/bin/pam-notify.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Configure PAM for notifications
+  when: ssh_hardening_enable_tg_notifications
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/common-session
+    line: "session optional pam_exec.so /usr/local/bin/pam-notify.sh"

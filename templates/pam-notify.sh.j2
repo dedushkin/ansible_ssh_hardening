@@ -1,0 +1,39 @@
+#!/bin/bash
+
+TELEGRAM_API_TOKEN="{{ ssh_hardening_tg_notifications_bot_token }}"
+TELEGRAM_GROUP_ID="{{ ssh_hardening_tg_notifications_chat_id }}"
+
+telegram_notify() {
+    curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_API_TOKEN/sendMessage" \
+        -d chat_id="$TELEGRAM_GROUP_ID" \
+        -d text="$1" \
+        -d parse_mode="Markdown" \
+        -d disable_web_page_preview="true" > /dev/null
+}
+
+CURRENT_HOSTNAME=$(hostname -f)
+CURRENT_IP=$(hostname -I | awk '{print $1}') 
+CURRENT_DATETIME=$(TZ="{{ ssh_hardening_tg_notifications_timezone }}" date)
+
+REMOTE_SOURCE=$PAM_RUSER
+
+if [ -n "$PAM_RHOST" ]; then
+    # Check if the address is from a private subnet
+    if [[ "$PAM_RHOST" =~ ^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.) ]] || [[ "$PAM_RHOST" == "::1" ]]; then
+        REMOTE_SOURCE="$PAM_RHOST $PAM_RUSER"
+    else
+        REMOTE_GEOIP=$(curl --fail -m 1 -s https://ipinfo.io/$PAM_RHOST/json | jq -r '.city + ", " + .country')
+        if [[ -n "$REMOTE_GEOIP" ]]; then
+            REMOTE_SOURCE=$(printf "[%s %s](https://ipinfo.io/%s) %s" "$PAM_RHOST" "$REMOTE_GEOIP" "$PAM_RHOST" "$PAM_RUSER")
+        else
+            REMOTE_SOURCE=$(printf "%s %s" "$PAM_RHOST" "$PAM_RUSER")
+        fi
+    fi
+fi
+
+if [[ "$PAM_TYPE" = "open_session" ]]; then
+    message=$(printf "*%s* logged in to %s (%s) from %s\n*Service*: %s (%s)\n*Server time:* %s" "$PAM_USER" "$CURRENT_HOSTNAME" "$CURRENT_IP" "$REMOTE_SOURCE" "$PAM_SERVICE" "$PAM_TTY" "$CURRENT_DATETIME")
+    telegram_notify "$message"
+fi
+
+exit 0

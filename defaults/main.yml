@@ -1,0 +1,20 @@
+---
+# defaults file for ssh_hardening
+ssh_hardening_max_auth_tries: 3
+ssh_hardening_allowed_users: "{{ ansible_user }}"
+ssh_hardening_client_alive_interval: 300
+ssh_hardening_client_alive_count_max: 2
+ssh_hardening_host_key_algorithms: "ssh-ed25519,rsa-sha2-512,rsa-sha2-256"
+ssh_hardening_kex_algorithms: "curve25519-sha256@libssh.org,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256"
+ssh_hardening_ciphers: "chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com"
+ssh_hardening_macs: "hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com"
+
+ssh_hardening_enable_fail2ban: true
+ssh_hardening_fail2ban_maxretry: 3
+ssh_hardening_fail2ban_findtime: 10m
+ssh_hardening_fail2ban_bantime: 1h
+
+ssh_hardening_enable_tg_notifications: true
+ssh_hardening_tg_notifications_bot_token: "changeme:changeme"
+ssh_hardening_tg_notifications_chat_id: "changeme"
+ssh_hardening_tg_notifications_timezone: "Asia/Tbilisi"
