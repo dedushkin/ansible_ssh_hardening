@@ -9,7 +9,7 @@ Role Variables
 | Variable | Default value | Description and example |
 | -------- | ------------- | ----------------------- |
 | ssh_hardening_max_auth_tries | 3 | MaxAuthTries |
-| ssh_hardening_allowed_users | {{ ansible_user }} | AllowUsers |
+| ssh_hardening_allowed_users | `{{ ansible_user }}` | AllowUsers |
 | ssh_hardening_client_alive_interval | 300 | ClientAliveInterval |
 | ssh_hardening_client_alive_count_max | 2 | ClientAliveCountMax |
 | ssh_hardening_host_key_algorithms | ssh-ed25519,rsa-sha2-512,rsa-sha2-256 | HostKeyAlgorithms | 
@@ -28,11 +28,13 @@ Role Variables
 Example Playbook
 ----------------
 
+```
 - name: Prepare server
   hosts: all
   become: true
   roles:
     - ssh_hardening
+```
 
 License
 -------
