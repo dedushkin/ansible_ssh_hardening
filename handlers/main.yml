@@ -1,10 +1,10 @@
 ---
 # handlers file for ssh_hardening
-- name: Restart ssh service
+- name: Reload ssh service
   ansible.builtin.service:
     name: ssh
     enabled: true
-    state: restarted
+    state: reloaded
 
 - name: Restart fail2ban
   ansible.builtin.service:

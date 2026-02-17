@@ -9,11 +9,13 @@ Role Variables
 | Variable | Default value | Description and example |
 | -------- | ------------- | ----------------------- |
 | ssh_hardening_max_auth_tries | 3 | MaxAuthTries |
+| ssh_hardening_permit_root_login | no | PermitRootLogin |
+| ssh_hardening_kbdinteractiveauthentication | no | KbdInteractiveAuthentication |
 | ssh_hardening_allowed_users | `{{ ansible_user }}` | AllowUsers |
 | ssh_hardening_client_alive_interval | 300 | ClientAliveInterval |
 | ssh_hardening_client_alive_count_max | 2 | ClientAliveCountMax |
 | ssh_hardening_host_key_algorithms | ssh-ed25519,rsa-sha2-512,rsa-sha2-256 | HostKeyAlgorithms | 
-| ssh_hardening_kex_algorithms | curve25519-sha256@libssh.org,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256 | KexAlgorithms |
+| ssh_hardening_kex_algorithms | curve25519-sha256@libssh.org | KexAlgorithms |
 | ssh_hardening_ciphers | chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com | Ciphers |
 | ssh_hardening_macs | hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com | MACs |
 | ssh_hardening_enable_fail2ban | true | Install and configure fail2ban |

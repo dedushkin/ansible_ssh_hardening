@@ -1,5 +1,16 @@
-[sshd]
-enabled = true
-maxretry = {{ ssh_hardening_fail2ban_maxretry }}
-findtime = {{ ssh_hardening_fail2ban_findtime }}
-bantime = {{ ssh_hardening_fail2ban_bantime }}
+# {{ ansible_managed }}
+
+PasswordAuthentication no
+PermitRootLogin {{ ssh_hardening_permit_root_login }}
+PermitEmptyPasswords no
+KbdInteractiveAuthentication {{ ssh_hardening_kbdinteractiveauthentication }}
+HostbasedAuthentication no
+MaxAuthTries {{ ssh_hardening_max_auth_tries }}
+X11Forwarding no
+ClientAliveInterval {{ ssh_hardening_client_alive_interval }}
+ClientAliveCountMax {{ ssh_hardening_client_alive_count_max }}
+AllowUsers {{ ssh_hardening_allowed_users }}
+HostKeyAlgorithms {{ ssh_hardening_host_key_algorithms }}
+KexAlgorithms {{ ssh_hardening_kex_algorithms }}
+Ciphers {{ ssh_hardening_ciphers }}
+MACs {{ ssh_hardening_macs }}
