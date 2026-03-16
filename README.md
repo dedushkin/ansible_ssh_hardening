@@ -12,6 +12,8 @@ Role Variables
 | ssh_hardening_permit_root_login | no | PermitRootLogin |
 | ssh_hardening_kbdinteractiveauthentication | no | KbdInteractiveAuthentication |
 | ssh_hardening_allowed_users | `{{ ansible_user }}` | AllowUsers |
+| ssh_hardening_authorized_keys_users | `[ "{{ ansible_user }}" ]` | List of users to add authorized keys |
+| ssh_hardening_authorized_keys | | Multiline block with authorized keys to append |
 | ssh_hardening_client_alive_interval | 300 | ClientAliveInterval |
 | ssh_hardening_client_alive_count_max | 2 | ClientAliveCountMax |
 | ssh_hardening_host_key_algorithms | ssh-ed25519,rsa-sha2-512,rsa-sha2-256 | HostKeyAlgorithms | 

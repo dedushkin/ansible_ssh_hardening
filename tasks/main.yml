@@ -10,6 +10,12 @@
     mode: '0600'
   ignore_errors: true
 
+- name: Add authorized keys
+  when: ssh_hardening_authorized_keys | length > 0
+  ansible.builtin.include_tasks:
+    file: add_keys.yml
+  loop: "{{ ssh_hardening_authorized_keys_users }}"
+
 - name: Configure sshd
   ansible.builtin.template:
     src: sshd.conf.j2

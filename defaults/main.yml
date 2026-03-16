@@ -4,6 +4,8 @@ ssh_hardening_max_auth_tries: 3
 ssh_hardening_permit_root_login: "no"
 ssh_hardening_kbdinteractiveauthentication: "no"
 ssh_hardening_allowed_users: "{{ ansible_user }}"
+ssh_hardening_authorized_keys_users: [ "{{ ansible_user }}" ]
+ssh_hardening_authorized_keys: ""
 ssh_hardening_client_alive_interval: 300
 ssh_hardening_client_alive_count_max: 2
 ssh_hardening_host_key_algorithms: "ssh-ed25519,rsa-sha2-512,rsa-sha2-256"

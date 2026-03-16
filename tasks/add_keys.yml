@@ -1,0 +1,32 @@
+- name: Get home directory for a specific user
+  ansible.builtin.user:
+    name: "{{ item }}"
+    state: present
+  check_mode: true
+  register: user_info
+
+- name: Check if authorized_keys exists
+  ansible.builtin.stat:
+    path: "{{ user_info.home }}/.ssh/authorized_keys"
+  register: stat_authorized_keys
+
+- name: Backup existing authorized_keys file
+  when: stat_authorized_keys.stat.exists 
+  ansible.builtin.copy:
+    src: "{{ user_info.home }}/.ssh/authorized_keys"
+    dest: "{{ user_info.home }}/.ssh/authorized_keys.bak"
+    remote_src: true
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0600'
+
+- name: Add authorized keys
+  ansible.builtin.blockinfile:
+    path: "{{ user_info.home }}/.ssh/authorized_keys"
+    block: "{{ ssh_hardening_authorized_keys }}"
+    insertafter: EOF
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR AUTHORIZED KEYS"
+    create: true
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0600'
