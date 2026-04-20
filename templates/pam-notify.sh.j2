@@ -4,7 +4,7 @@ TELEGRAM_API_TOKEN="{{ ssh_hardening_tg_notifications_bot_token }}"
 TELEGRAM_GROUP_ID="{{ ssh_hardening_tg_notifications_chat_id }}"
 
 telegram_notify() {
-    curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_API_TOKEN/sendMessage" \
+    curl -m 1 -s -X POST "https://api.telegram.org/bot$TELEGRAM_API_TOKEN/sendMessage" \
         -d chat_id="$TELEGRAM_GROUP_ID" \
         -d text="$1" \
         -d parse_mode="Markdown" \
